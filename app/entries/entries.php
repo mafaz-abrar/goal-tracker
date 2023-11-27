@@ -77,7 +77,7 @@ include_once(__DIR__ . '/../../utils/sql_utils.php');
         '>Edit</a>';
 
       $table .=
-        "<a class='control' href='entry_process.php?mode=delete" .
+        "<a class='control' onclick='return confirm(\"Are you sure?\")' href='entry_process.php?mode=delete" .
         '&entry_id=' . $row['entry_id'] . "'" .
         '>Delete</a>';
 
