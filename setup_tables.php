@@ -1,37 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="utf-8" />
-  <meta name="author" content="Mafaz Abrar Jan Chowdhury" />
-  <meta name="description" content="" />
-  <meta name="keywords" content="" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>setup_tables.php</title>
-</head>
-
-<body>
-  <a href='index.php'>Return</a>
-</body>
-
-</html>
-
 <?php
 include_once(dirname(__FILE__) . "/framework/db_access.php");
 
-$db_access = new db_access("test");
+$db_access = new db_access();
+$errors = '';
 
-$create_entries_table =
-  "CREATE TABLE entries (
+$create_entries_table_sql =
+  "CREATE TABLE IF NOT EXISTS entries (
     entry_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     date DATE NOT NULL, 
     goal_id INT NOT NULL,
     activity_id INT NOT NULL,
-    task_description VARCHAR(255) NOT NULL,
+    task_description TEXT NOT NULL,
     hours_spent INT NOT NULL,
     start_time TIME,
     end_time TIME
   )";
 
-$db_access->execute_query($create_entries_table);
+$create_goals_table_sql =
+  "CREATE TABLE IF NOT EXISTS goals (
+    goal_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    goal_name TEXT NOT NULL
+  )
+  ";
+
+$create_activities_table_sql =
+  "CREATE TABLE IF NOT EXISTS activities (
+    activity_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    goal_id INT NOT NULL,
+    activity_name TEXT NOT NULL
+  )";
+
+if (!$db_access->execute_query($create_entries_table_sql)) {
+  $errors .= $db_access->get_error() . "\n";
+}
+
+if (!$db_access->execute_query($create_goals_table_sql)) {
+  $errors .= $db_access->get_error() . "\n";
+};
+
+if (!$db_access->execute_query($create_activities_table_sql)) {
+  $errors .= $db_access->get_error() . "\n";
+}
+
+$url = 'index.php';
+
+$tables_created_successfully = $errors == '';
+$url .= '?tables_created=' . $tables_created_successfully;
+
+if (!$tables_created_successfully) {
+  $url .= '?errors=' . $errors;
+}
+
+header('Location: ' . $url);
+exit();

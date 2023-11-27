@@ -1,33 +1,64 @@
 <?php
-include(dirname(__FILE__) . '/db_config.php');
+include_once(dirname(__FILE__) . '/db_config.php');
+include_once(dirname(__FILE__) . '/sql_utils.php');
 
 class db_access
 {
-  private $conn;
+  private mysqli | false $conn;
+  private mysqli_result | bool | null $result;
 
-  public function __construct($db_name = "test")
+  public function __construct()
   {
-    $this->conn = mysqli_connect(HOST, USER, PSWD, $db_name);
+    $this->conn = mysqli_connect(HOST, USER, PSWD, DB);
+    $this->result = null;
+  }
+
+  public function __destruct()
+  {
+    if (!is_bool($this->conn))
+      mysqli_close($this->conn);
   }
 
   public function execute_query($sql_statement)
   {
-    return mysqli_query($this->conn, $sql_statement);
+    $this->result = mysqli_query($this->conn, $sql_statement);
   }
 
-  public function save_new_object(data_object $object)
+  public function query_success(): bool
   {
-    $object->update();
+    if (is_bool($this->result)) return $this->result;
+    return true;
+  }
 
+  public function get_next_row(): array | null
+  {
+    return mysqli_fetch_assoc($this->result);
+  }
+
+  public function has_rows(): bool
+  {
+    return ($this->get_num_rows() > 0);
+  }
+
+  public function get_num_rows(): string | int
+  {
+    return mysqli_num_rows($this->result);
+  }
+
+  public function get_error(): string
+  {
+    return mysqli_error($this->conn);
+  }
+
+  public function insert_new_object(data_object $object)
+  {
     $statement = "INSERT INTO ";
-    $statement .= $object->table_name . " (";
+    $statement .= $object->get_table_name() . " (";
 
-    $fields = array_keys($object->data);
+    $fields = array_keys($object->get_data());
 
-    foreach ($fields as $field) {
-      $last_key = array_key_last($fields);
-
-      if ($field == $fields[$last_key]) {
+    foreach ($fields as $index => $field) {
+      if ($index === array_key_last($fields)) {
         $statement .= $field;
         break;
       }
@@ -35,12 +66,10 @@ class db_access
       $statement .= $field . ", ";
     }
 
-    $statement .= ") VALUES ( ";
+    $statement .= " ) VALUES ( ";
 
-    foreach ($object->data as $key => $val) {
-      echo $val;
-
-      if ($key == array_key_last($object->data)) {
+    foreach ($object->get_data() as $key => $val) {
+      if ($key === array_key_last($object->get_data())) {
         $statement .= $val;
         break;
       }
@@ -48,104 +77,270 @@ class db_access
       $statement .= $val . ", ";
     }
 
-    $statement .= ")";
+    $statement .= " ) ";
+
+    $this->execute_query($statement);
+  }
+
+  public function update_existing_object(data_object $object)
+  {
+    $statement = 'UPDATE ';
+    $statement .= $object->get_table_name() . ' ';
+
+    $statement .= 'SET ';
+
+    foreach ($object->get_data() as $key => $val) {
+      if ($key === array_key_last($object->get_data())) {
+        $statement .= $key . ' = ' . $val . ' ';
+        break;
+      }
+
+      $statement .= $key . ' = ' . $val . ", ";
+    }
+
+    $statement .= 'WHERE ' . $object->get_id_column_name() . ' = ' . $object->get_id();
+
+    $this->execute_query($statement);
+  }
+
+  public function get_existing_object_data(data_object $object): array
+  {
+    $statement = 'SELECT * FROM ' . $object->get_table_name() . ' ';
+    $statement .= 'WHERE ' . $object->get_id_column_name() . ' = ' . $object->get_id();
+
+    $this->execute_query($statement);
+    $num_rows = $this->get_num_rows();
+
+    if ($num_rows !== 1) {
+      throw new Exception('Expect exactly 1 record!');
+    }
+
+    return $this->get_next_row();
+  }
+
+  public function delete_existing_object(data_object $object)
+  {
+    $statement = 'DELETE FROM ' . $object->get_table_name() . ' ';
+    $statement .= 'WHERE ' . $object->get_id_column_name() . ' = ' . $object->get_id();
 
     $this->execute_query($statement);
   }
 }
 
-class data_object
+abstract class data_object
 {
-  public string $id;
-  public string $table_name;
-  public array $data;
+  protected ?int $id;
+  protected string $id_column_name;
+  protected string $table_name;
+  protected array $data;
+  protected db_access $db_access;
 
-  public function __construct(string $table_name)
-  {
-    $this->update();
+  protected function __construct(
+    db_access $db_access,
+    string $id_column_name,
+    string $table_name,
+    ?int $id,
+  ) {
+    $this->db_access = $db_access;
+    $this->id_column_name = $id_column_name;
     $this->table_name = $table_name;
+
+    $this->id = $id;
+
+    if (!is_null($id)) {
+      $this->load_existing();
+      $this->save_data();
+    }
   }
 
-  public function update()
+  abstract protected function save_data();
+  abstract protected function load_data(array $data);
+
+  public function get_id(): int
   {
-    $this->data = array();
+    return $this->id;
+  }
+
+  public function get_id_column_name(): string
+  {
+    return $this->id_column_name;
+  }
+
+  public function get_table_name(): string
+  {
+    return $this->table_name;
+  }
+
+  public function get_data(): array
+  {
+    return $this->data;
+  }
+
+  public function insert_new()
+  {
+    $this->save_data();
+    $this->db_access->insert_new_object($this);
+  }
+
+  public function update_existing()
+  {
+    if ($this->id === '') {
+      throw new Exception('No ID provided!');
+    }
+
+    $this->save_data();
+    $this->db_access->update_existing_object($this);
+  }
+
+  private function load_existing()
+  {
+    if ($this->id === '') {
+      throw new Exception('No ID provided!');
+    }
+
+    $raw_data_from_db = $this->db_access->get_existing_object_data($this);
+    $this->id = $raw_data_from_db[$this->id_column_name];
+    $this->load_data($raw_data_from_db);
+  }
+
+  public function delete_existing()
+  {
+    if ($this->id === '') {
+      throw new Exception('No ID provided!');
+    }
+
+    $this->db_access->delete_existing_object($this);
   }
 }
 
 class entry extends data_object
 {
-  public $goal_id;
-  public $activity_id;
-  public $date;
-  public $task_description;
-  public $hours;
-  public $start_time;
-  public $end_time;
+  public ?int $goal_id;
+  public ?int $activity_id;
+  public ?string $date;
+  public ?string $task_description;
+  public ?int $hours_spent;
+  public ?string $start_time;
+  public ?string $end_time;
 
-  public function __construct()
+  public function __construct(db_access $db_access, int $id = null)
   {
-    $this->goal_id = 0;
-    $this->activity_id = 0;
-    $this->date = '';
-    $this->task_description = '';
-    $this->hours = '';
-    $this->start_time = '';
-    $this->end_time = '';
+    $this->goal_id = null;
+    $this->activity_id = null;
+    $this->date = null;
+    $this->task_description = null;
+    $this->hours_spent = null;
+    $this->start_time = null;
+    $this->end_time = null;
 
-    parent::__construct('entries');
+    parent::__construct($db_access, 'entry_id', 'entries', $id);
   }
 
-  public function update()
+  protected function save_data()
   {
+    if (is_null($this->goal_id)) {
+      throw new Exception("Goal ID is null!");
+    }
+
+    if (is_null($this->activity_id)) {
+      throw new Exception("Activity ID is null!");
+    }
+
+    if (is_null($this->date)) {
+      throw new Exception("Date is null!");
+    }
+
+    if (is_null($this->task_description)) {
+      throw new Exception("Task description is null!");
+    }
+
+    if (is_null($this->hours_spent)) {
+      throw new Exception("Hours spent is null!");
+    }
+
     $this->data = [
       'goal_id' => $this->goal_id,
       'activity_id' => $this->activity_id,
-      'date' => $this->date,
-      'task_description' => $this->task_description,
-      'hours_spent' => $this->hours,
-      'start_time' => $this->start_time,
-      'end_time' => $this->end_time
+      'date' => add_single_quotes($this->date),
+      'task_description' => add_single_quotes($this->task_description),
+      'hours_spent' => $this->hours_spent,
+      'start_time' => is_null($this->start_time) ? "null" : add_single_quotes($this->start_time),
+      'end_time' => is_null($this->end_time) ? "null" : add_single_quotes($this->end_time)
     ];
+  }
+
+  protected function load_data(array $data)
+  {
+    $this->goal_id = $data['goal_id'];
+    $this->activity_id = $data['activity_id'];
+    $this->date = $data['date'];
+    $this->task_description = $data['task_description'];
+    $this->hours_spent  = $data['hours_spent'];
+    $this->start_time = $data['start_time'];
+    $this->end_time = $data['end_time'];
   }
 }
 
 class goal extends data_object
 {
-  public $goal_name;
+  public ?string $goal_name;
 
-  public function __construct()
+  public function __construct(db_access $db_access, int $id = null)
   {
-    $this->goal_name = '';
+    $this->goal_name = null;
 
-    parent::__construct('goals');
+    parent::__construct($db_access, 'goal_id', 'goals', $id);
   }
 
-  public function update()
+  protected function save_data()
   {
+    if (is_null($this->goal_name)) {
+      throw new Exception("Goal name is null!");
+    }
+
     $this->data = [
-      'goal_name' => $this->goal_name
+      'goal_name' => add_single_quotes($this->goal_name)
     ];
+  }
+
+  protected function load_data(array $data)
+  {
+    $this->goal_name = $data['goal_name'];
   }
 }
 
 class activity extends data_object
 {
-  public $goal_id;
-  public $activity_name;
+  public ?int $goal_id;
+  public ?string $activity_name;
 
-  public function __construct()
+  public function __construct(db_access $db_access, int $id = null)
   {
-    $this->goal_id = '';
-    $this->activity_name = '';
+    $this->goal_id = null;
+    $this->activity_name = null;
 
-    parent::__construct('activities');
+    parent::__construct($db_access, 'activity_id', 'activities', $id);
   }
 
-  public function update()
+  protected function save_data()
   {
+    if (is_null($this->goal_id)) {
+      throw new Exception("Goal ID is null!");
+    }
+
+    if (is_null($this->activity_name)) {
+      throw new Exception("Activity name is null!");
+    }
+
     $this->data = [
       'goal_id' => $this->goal_id,
-      'activity_name' => $this->activity_name
+      'activity_name' => add_single_quotes($this->activity_name)
     ];
+  }
+
+  protected function load_data(array $data)
+  {
+    $this->goal_id = $data['goal_id'];
+    $this->activity_name = $data['activity_name'];
   }
 }

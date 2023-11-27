@@ -1,5 +1,5 @@
 <?php
-function sql_to_table($results)
+function sql_to_table($results, $column_aliases = [])
 {
 
   if (is_bool($results)) {
@@ -15,9 +15,13 @@ function sql_to_table($results)
     $data[] = $row;
   }
 
-  $table = '<table border="1">';
-  $keys = array_keys(reset($data));
+  $table = '<table>';
   $table .= '<thead><tr>';
+
+  $keys = array_keys(reset($data));
+  if ($column_aliases != []) {
+    $keys = $column_aliases;
+  }
 
   foreach ($keys as $key) {
     $table .= '<th>' . $key . '</th>';
