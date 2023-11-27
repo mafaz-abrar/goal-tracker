@@ -41,7 +41,7 @@ if ($_GET['mode'] === 'edit') {
 
       <?php
       if ($_GET['mode'] === 'edit') {
-        echo "$('#goal_dropdown option[value=" . $entry->goal_id .
+        echo "$('#goal_dropdown option[value=" . $activity->goal_id .
           "]').attr('selected', 'selected');";
       }
       ?>
