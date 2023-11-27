@@ -1,24 +1,27 @@
 <?php
-function sql_to_table($results, $column_aliases = [])
+
+include_once(__DIR__ . '/../framework/db_access.php');
+
+function sql_to_table(db_access $db_access, array $column_aliases = [])
 {
 
-  if (is_bool($results)) {
+  if (is_bool($db_access)) {
     return '';
   }
 
-  if ($results->num_rows == 0) {
-    return '<table><tr><td>Empty Result Set</td></tr></table>';
+  if ($db_access->get_num_rows() == 0) {
+    return "<p class='empty-result'>Empty Result Set</p>";
   }
 
-  $data = array();
-  while ($row = mysqli_fetch_assoc($results)) {
-    $data[] = $row;
+  $rows = array();
+  while ($row = $db_access->get_next_row()) {
+    $rows[] = $row;
   }
 
   $table = '<table>';
   $table .= '<thead><tr>';
 
-  $keys = array_keys(reset($data));
+  $keys = array_keys(reset($rows));
   if ($column_aliases != []) {
     $keys = $column_aliases;
   }
@@ -29,9 +32,10 @@ function sql_to_table($results, $column_aliases = [])
   $table .= '</tr></thead>';
 
   $table .= '<tbody>';
-  foreach ($results as $result) {
+
+  foreach ($rows as $row) {
     $table .= '<tr>';
-    foreach ($result as $val) {
+    foreach ($row as $val) {
       $table .= '<td>' . $val . '</td>';
     }
     $table .= '</tr>';

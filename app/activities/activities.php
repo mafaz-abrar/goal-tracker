@@ -36,6 +36,9 @@ include_once(__DIR__ . '/../../utils/sql_utils.php');
       FROM 
         activities
         INNER JOIN goals ON goals.goal_id = activities.goal_id
+      ORDER BY
+        goals.goal_name,
+        activities.activity_name
     ";
 
   $db_access->execute_query($query);

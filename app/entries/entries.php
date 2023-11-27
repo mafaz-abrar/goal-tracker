@@ -52,7 +52,7 @@ include_once(__DIR__ . '/../../utils/sql_utils.php');
     $table = '<table>';
     $table .= '<thead><tr>';
 
-    $column_names = ['Date', 'Goals', 'Activity', 'Description', 'Hours', 'Start', 'End', 'Controls'];
+    $column_names = ['Day', 'Date', 'Goals', 'Activity', 'Description', 'Hours', 'Start', 'End', 'Controls'];
     foreach ($column_names as $column_name) {
       $table .= '<th>' . $column_name . '</th>';
     }
@@ -61,6 +61,7 @@ include_once(__DIR__ . '/../../utils/sql_utils.php');
     $table .= '<tbody>';
     while ($row = $db_access->get_next_row()) {
       $table .= '<tr>';
+      $table .= '<td>' . date('l', strtotime($row['date'])) . '</td>';
       $table .= '<td>' . $row['date'] . '</td>';
       $table .= '<td>' . $row['goal_name'] . '</td>';
       $table .= '<td>' . $row['activity_name'] . '</td>';
