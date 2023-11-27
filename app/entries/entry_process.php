@@ -1,7 +1,7 @@
 <?php
-include_once(dirname(__FILE__) . '/framework/db_access.php');
+include_once(__DIR__ . '/../../framework/db_access.php');
 
-$db_access = new db_access('test');
+$db_access = new db_access();
 
 switch ($_GET['mode']) {
   case 'add':
@@ -9,14 +9,15 @@ switch ($_GET['mode']) {
     break;
   case 'edit':
   case 'delete':
-    $entry = new entry($db_access, $_POST['entry_id']);
+    $entry = new entry($db_access, $_GET['entry_id']);
     break;
   default:
-    echo 'Fail bitch';
+    exit('Unknown mode!');
 }
 
-if (isset($_POST['goal_id']))
+if (isset($_POST['goal_id'])) {
   $entry->goal_id = $_POST['goal_id'];
+}
 
 if (isset($_POST['activity_id']))
   $entry->activity_id = $_POST['activity_id'];
@@ -53,8 +54,8 @@ switch ($_GET['mode']) {
     $entry->delete_existing();
     break;
   default:
-    echo 'Fail bitch';
+    exit('Unknown mode!');
 }
 
-header('Location: index.php');
+header('Location: ' . 'entries.php');
 exit();

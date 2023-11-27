@@ -1,5 +1,5 @@
 <?php
-include_once(dirname(__FILE__) . "/framework/db_access.php");
+include_once(__DIR__ . "/framework/db_access.php");
 
 $db_access = new db_access();
 $errors = '';
@@ -11,7 +11,7 @@ $create_entries_table_sql =
     goal_id INT NOT NULL,
     activity_id INT NOT NULL,
     task_description TEXT NOT NULL,
-    hours_spent INT NOT NULL,
+    hours_spent TIME NOT NULL,
     start_time TIME,
     end_time TIME
   )";
@@ -45,10 +45,10 @@ if (!$db_access->execute_query($create_activities_table_sql)) {
 $url = 'index.php';
 
 $tables_created_successfully = $errors == '';
-$url .= '?tables_created=' . $tables_created_successfully;
+$url .= '?tables_created=' . ($tables_created_successfully ? 'true' : 'false');
 
 if (!$tables_created_successfully) {
-  $url .= '?errors=' . $errors;
+  $url .= '&errors=' . $errors;
 }
 
 header('Location: ' . $url);

@@ -1,9 +1,7 @@
 <?php
-include_once(dirname(__FILE__) . '/framework/db_access.php');
-include_once(dirname(__FILE__) . '/framework/sql_utils.php');
+include_once(__DIR__ . '/../../framework/db_access.php');
 
-
-$db_access = new db_access('test');
+$db_access = new db_access();
 
 switch ($_GET['mode']) {
   case 'add':
@@ -11,10 +9,10 @@ switch ($_GET['mode']) {
     break;
   case 'edit':
   case 'delete':
-    $goal = new goal($db_access, $_POST['goal_id']);
+    $goal = new goal($db_access, $_GET['goal_id']);
     break;
   default:
-    echo 'Fail bitch';
+    exit('Unknown mode!');
 }
 
 if (isset($_POST['goal_name']))
@@ -31,8 +29,8 @@ switch ($_GET['mode']) {
     $goal->delete_existing();
     break;
   default:
-    echo 'Fail bitch';
+    exit('Unknown mode!');
 }
 
-header('Location: goals.php');
+header('Location: ' . 'goals.php');
 exit();

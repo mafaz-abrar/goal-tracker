@@ -1,6 +1,6 @@
 <?php
-include_once(dirname(__FILE__) . '/db_config.php');
-include_once(dirname(__FILE__) . '/sql_utils.php');
+include_once(__DIR__ . '/db_config.php');
+include_once(__DIR__ . '/../utils/sql_utils.php');
 
 class db_access
 {
@@ -219,7 +219,7 @@ class entry extends data_object
   public ?int $activity_id;
   public ?string $date;
   public ?string $task_description;
-  public ?int $hours_spent;
+  public ?string $hours_spent;
   public ?string $start_time;
   public ?string $end_time;
 
@@ -263,7 +263,7 @@ class entry extends data_object
       'activity_id' => $this->activity_id,
       'date' => add_single_quotes($this->date),
       'task_description' => add_single_quotes($this->task_description),
-      'hours_spent' => $this->hours_spent,
+      'hours_spent' =>  add_single_quotes($this->hours_spent),
       'start_time' => is_null($this->start_time) ? "null" : add_single_quotes($this->start_time),
       'end_time' => is_null($this->end_time) ? "null" : add_single_quotes($this->end_time)
     ];

@@ -1,6 +1,6 @@
 <?php
-include_once('../../framework/db_access.php');
-include_once('../../framework/sql_utils.php');
+include_once(__DIR__ . '/../../framework/db_access.php');
+include_once(__DIR__ . '/../../utils/sql_utils.php');
 ?>
 
 <!DOCTYPE html>
@@ -9,35 +9,23 @@ include_once('../../framework/sql_utils.php');
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel='stylesheet' href="./styles/styles.css" />
+  <link rel='stylesheet' href="../../styles/styles.css" />
   <title>Goal Tracker</title>
 </head>
 
 <body>
   <h1>Entries</h1>
 
-  <p class='controls'>
-    <a href='./index.php'>Entries</a>
-    <a href='./goals.php'>Goals</a>
-    <a href='./activities.php'>Activities</a>
-  </p>
-
-  <p class='controls'>
-    <a href='setup_tables.php'>Create Tables</a>
+  <p class='links'>
+    <a href='../../index.php'>Home</a>
+    <a href='./entries.php'>Entries</a>
+    <a href='../goals/goals.php'>Goals</a>
+    <a href='../activities/activities.php'>Activities</a>
   </p>
 
   <p class='controls'><a href='./entry.php?mode=add'> + Add Entry</a></p>
 
   <?php
-
-  if (isset($_GET['tables_created']) && $_GET['tables_created']) {
-    echo "<p class='success'>Tables created successfully.</p>";
-  }
-
-  if (isset($_GET['errors'])) {
-    echo "<p class='error'>Error creating tables: " . $_GET['errors'] . "</p>";
-  }
-
   $db_access = new db_access();
 
   $query =
@@ -60,43 +48,48 @@ include_once('../../framework/sql_utils.php');
 
   $db_access->execute_query($query);
 
+  if ($db_access->has_rows()) {
+    $table = '<table>';
+    $table .= '<thead><tr>';
 
-  $table = '<table>';
-  $table .= '<thead><tr>';
+    $column_names = ['Date', 'Goals', 'Activity', 'Description', 'Hours', 'Start', 'End', 'Controls'];
+    foreach ($column_names as $column_name) {
+      $table .= '<th>' . $column_name . '</th>';
+    }
+    $table .= '</tr></thead>';
 
-  $column_names = ['Date', 'Goals', 'Activity', 'Description', 'Hours', 'Start', 'End', 'Controls'];
-  foreach ($column_names as $column_name) {
-    $table .= '<th>' . $column_name . '</th>';
+    $table .= '<tbody>';
+    while ($row = $db_access->get_next_row()) {
+      $table .= '<tr>';
+      $table .= '<td>' . $row['date'] . '</td>';
+      $table .= '<td>' . $row['goal_name'] . '</td>';
+      $table .= '<td>' . $row['activity_name'] . '</td>';
+      $table .= '<td>' . $row['task_description'] . '</td>';
+      $table .= '<td>' . $row['hours_spent'] . '</td>';
+      $table .= '<td>' . $row['start_time'] . '</td>';
+      $table .= '<td>' . $row['end_time'] . '</td>';
+      $table .= '<td>';
+
+      $table .=
+        "<a class='control' href='entry.php?mode=edit" .
+        '&entry_id=' . $row['entry_id'] . "'" .
+        '>Edit</a>';
+
+      $table .=
+        "<a class='control' href='entry_process.php?mode=delete" .
+        '&entry_id=' . $row['entry_id'] . "'" .
+        '>Delete</a>';
+
+      $table .= '</td></tr>';
+    }
+    $table .= '</tbody></table>';
+
+    echo $table;
+  } else {
+    echo "<p class='empty-result'>No entries to show.</p>";
   }
-  $table .= '</tr></thead>';
 
-  $table .= '<tbody>';
-  while ($row = $db_access->get_next_row()) {
-    $table .= '<tr>';
-    $table .= '<td>' . $row['date'] . '</td>';
-    $table .= '<td>' . $row['goal_name'] . '</td>';
-    $table .= '<td>' . $row['activity_name'] . '</td>';
-    $table .= '<td>' . $row['task_description'] . '</td>';
-    $table .= '<td>' . $row['hours_spent'] . '</td>';
-    $table .= '<td>' . $row['start_time'] . '</td>';
-    $table .= '<td>' . $row['end_time'] . '</td>';
-    $table .= '<td>';
 
-    $table .=
-      "<a href='entry.php?mode=edit" .
-      '&entry_id=' . $row['entry_id'] . "'" .
-      '>Edit</a>';
-
-    $table .=
-      "<a href='entry.php?mode=delete" .
-      '&entry_id=' . $row['entry_id'] . "'" .
-      '>Delete</a>';
-
-    $table .= '</tr>';
-  }
-  $table .= '</tbody></table>';
-
-  echo $table;
   ?>
 </body>
 

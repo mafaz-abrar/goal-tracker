@@ -10,6 +10,18 @@ h1 {
   justify-content: space-evenly;
 }
 
+.links a {
+  text-decoration: none;
+  color: black;
+  border: 1px solid lightgrey;
+  padding: 10px;
+  transition: 0.3s;
+}
+
+.links a:hover {
+  background-color: lightgrey;
+}
+
 .controls {
   width: 30%;
   margin-left: auto;
@@ -18,36 +30,50 @@ h1 {
   justify-content: space-evenly;
 }
 
-/* a, button {
+.controls a, button, .control {
   color: black;
+  font-family: 'Courier New', Courier, monospace;
   text-decoration: none;
   border: 1px solid black;
   padding: 5px;
   margin-left: 2px;
   margin-right: 2px;
   background-color: lightgrey;
+  transition: 0.3s;
 }
 
-a:hover, button:hover {
+.controls a:hover, button:hover, .control:hover {
   background-color: lightgoldenrodyellow;
-} */
+}
 
 table {
   margin: auto;
 }
 
-tbody tr td {
+.empty-result {
+  width: 50%;
+  justify-content: center;
+  text-align: center;
+  margin: auto;
+  font-style: italic;
+}
+
+thead tr th {
+  border: 1px solid lightgrey;
+}
+
+tbody tr td, thead tr th {
   padding: 10px;
 }
 
 tbody tr:nth-child(even) {
-  background-color: #fff;
-  color: #4C8BF5;
+  background-color: lightgrey;
+  color: black;
 }
 
 tbody tr:nth-child(odd) {
-  background-color: #4C8BF5;
-  color: #fff;
+  background-color: grey;
+  color: black;
 }
 
 .form_input_container {
@@ -59,6 +85,16 @@ tbody tr:nth-child(odd) {
 }
 
 .success {
+  width: 20%;
+  margin-right: auto;
+  margin-left: auto;
+  background: linear-gradient(lightgray, greenyellow, lightgray);
+  text-align: center;
+  padding: 5px;
+  border-radius: 10px;
+}
+
+.errors {
   width: 20%;
   margin-right: auto;
   margin-left: auto;

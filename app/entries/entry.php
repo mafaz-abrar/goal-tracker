@@ -1,6 +1,6 @@
 <?php
-include_once(__DIR__ . '/framework/db_access.php');
-include_once(__DIR__ . '/framework/sql_utils.php');
+include_once(__DIR__ . '/../../framework/db_access.php');
+include_once(__DIR__ . '/../../utils/sql_utils.php');
 
 $db_access = new db_access();
 
@@ -41,7 +41,7 @@ if ($_GET['mode'] == 'edit') {
   <meta name="keywords" content="" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel='stylesheet' href='./styles/styles.css' />
+  <link rel='stylesheet' href='../../styles/styles.css' />
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script>
     $(document).ready(() => {
@@ -93,52 +93,50 @@ if ($_GET['mode'] == 'edit') {
 <body>
   <h1><?php echo ($_GET['mode'] === 'add' ? 'Add New' : 'Edit'); ?> Entry</h1>
 
-  <form action=<?php echo 'entry_process.php?mode=' . $_GET['mode'] ?> method='post'>
-
-    <?php if ($_GET['mode'] === 'edit') : ?>
-      <input type="hidden" name="entry_id" value=<?php echo add_single_quotes($_GET['entry_id']); ?> />
-    <?php endif; ?>
+  <form action=<?php echo 'entry_process.php?mode=' . $_GET['mode'] .
+                  ($_GET['mode'] === 'edit' ? '&entry_id=' . $_GET['entry_id'] : '')
+                ?> method='post'>
 
     <p class="form_input_container">
       <label for='goal_id' id='goal_id'>Goal</label>
-      <select name='goal_id' id='goal_dropdown'>
+      <select name='goal_id' id='goal_dropdown' required>
       </select>
     </p>
 
     <p class="form_input_container">
       <label for='activity_id' id='activity_id'>Activity</label>
-      <select name='activity_id' id='activity_dropdown'>
+      <select name='activity_id' id='activity_dropdown' required>
       </select>
     </p>
 
     <p class="form_input_container">
       <label for='date' id='date'>Date</label>
-      <input name='date' type='date' id='date_input' <?php echo $_GET['mode'] === 'edit' ? "value=" . add_single_quotes($entry->date) : '' ?> />
+      <input name='date' type='date' id='date_input' <?php echo $_GET['mode'] === 'edit' ? "value=" . add_single_quotes($entry->date) : '' ?> required />
     </p>
 
     <p class="form_input_container">
       <label for='task_description' id='task_description'>Task Description</label>
-      <input name='task_description' type='text' <?php echo $_GET['mode'] === 'edit' ? "value=" . add_single_quotes($entry->task_description) : '' ?> />
+      <input name='task_description' type='text' <?php echo $_GET['mode'] === 'edit' ? "value=" . add_single_quotes($entry->task_description) : '' ?> required />
     </p>
 
     <p class="form_input_container">
-      <label for='hours' id='hours'>Hours</label>
-      <input name='hours' type='text' <?php echo $_GET['mode'] === 'edit' ? "value=" . add_single_quotes($entry->hours_spent) : '' ?> />
+      <label for='hours' id='hours'>Hours Spent</label>
+      <input name='hours' type='text' <?php echo $_GET['mode'] === 'edit' ? "value=" . add_single_quotes($entry->hours_spent) : '' ?> required />
     </p>
 
     <p class="form_input_container">
       <label for='start_time' id='start_time'>Start Time</label>
-      <input name='start_time' type='text' <?php echo $_GET['mode'] === 'edit' ? "value=" . add_single_quotes($entry->start_time) : '' ?> />
+      <input name='start_time' type='time' <?php echo $_GET['mode'] === 'edit' ? "value=" . add_single_quotes($entry->start_time) : '' ?> />
     </p>
 
     <p class="form_input_container">
       <label for='end_time' id='end_time'>End Time</label>
-      <input name='end_time' type='text' <?php echo $_GET['mode'] === 'edit' ? "value=" . add_single_quotes($entry->end_time) : '' ?> />
+      <input name='end_time' type='time' <?php echo $_GET['mode'] === 'edit' ? "value=" . add_single_quotes($entry->end_time) : '' ?> />
     </p>
 
     <p class="controls">
       <button>Submit</button>
-      <a href='./index.php'>Cancel</a>
+      <a href='./entries.php'>Cancel</a>
     </p>
   </form>
 
