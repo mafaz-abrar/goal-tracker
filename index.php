@@ -77,7 +77,7 @@ include_once(__DIR__ . '/utils/sql_utils.php');
           entries.date,
           activities.activity_name
         ORDER BY
-          activities.goal_id
+          activities.goal_id,
       ";
     $db_access->execute_query($this_week_activities_data_sql);
 

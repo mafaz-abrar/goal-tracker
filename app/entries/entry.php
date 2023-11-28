@@ -55,17 +55,31 @@ if ($_GET['mode'] == 'edit') {
         goal_dropdown.append(new Option(goal.goal_name, goal.goal_id));
       });
 
+      <?php
+      if ($_GET['mode'] === 'edit') {
+        $activity = new activity(new db_access(), $entry->activity_id);
+        echo 'goal_dropdown.val(' . add_single_quotes($activity->goal_id) . ');';
+      }
+
+      ?>
+
       activities.forEach((activity) => {
-        if (activity.goal_id == goal_dropdown.val()) {
+        if (activity.goal_id === goal_dropdown.val()) {
           activity_dropdown.append(new Option(activity.activity_name, activity.activity_id));
         }
       })
+
+      <?php
+      if ($_GET['mode'] === 'edit') {
+        echo 'activity_dropdown.val(' . add_single_quotes($entry->activity_id) . ');';
+      }
+      ?>
 
       goal_dropdown.change(() => {
         activity_dropdown.empty();
 
         activities.forEach((activity) => {
-          if (activity.goal_id == goal_dropdown.val()) {
+          if (activity.goal_id === goal_dropdown.val()) {
             activity_dropdown.append(new Option(activity.activity_name, activity.activity_id));
           }
         })
@@ -74,16 +88,6 @@ if ($_GET['mode'] == 'edit') {
       <?php if ($_GET['mode'] === 'add') : ?>
         document.getElementById('date_input').valueAsDate = new Date();
       <?php endif; ?>
-
-      <?php
-      if ($_GET['mode'] === 'edit') {
-        echo "$('#goal_dropdown option[value=" . $entry->goal_id .
-          "]').attr('selected', 'selected');";
-
-        echo "$('#activity_dropdown option[value=" . $entry->activity_id .
-          "]').attr('selected', 'selected');";
-      }
-      ?>
     });
   </script>
 
