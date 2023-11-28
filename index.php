@@ -40,42 +40,68 @@ include_once(__DIR__ . '/utils/sql_utils.php');
 
   <?php
 
-  function get_total_hours_logged_for_activity_for_day($activity_id, $day_name)
+  function get_day_and_hours_array_for_activity_data(array $activity_data): array
   {
-    $day_date = date('Y-m-d', strtotime($day_name));
+    $data = array();
+    $data['Monday'] = '';
+    $data['Tuesday'] = '';
+    $data['Wednesday'] = '';
+    $data['Thursday'] = '';
+    $data['Friday'] = '';
+    $data['Saturday'] = '';
+    $data['Sunday'] = '';
 
-    $db_access = new db_access();
-    $sql =
-      " SELECT
-          sec_to_time(sum(time_to_sec(entries.hours_spent))) AS hours_spent
-        FROM
-          entries
-        WHERE
-          entries.date = " .  add_single_quotes($day_date) .
-      "   AND entries.activity_id = " . $activity_id .
-      ";";
+    foreach ($activity_data as $row) {
+      $day = date('l', strtotime($row['date']));
+      $data[$day] = $row['total_hours_for_date'];
+    }
 
-    $db_access->execute_query($sql);
-
-    return $db_access->get_next_row()['hours_spent'];
+    return $data;
   }
 
-  $this_week_activities = new db_access();
-  $this_week_activities_sql =
-    " SELECT
-        entries.activity_id,
-        activities.activity_name
-      FROM
-        entries
-        INNER JOIN activities ON activities.activity_id = entries.activity_id
-      WHERE
-        yearweek(entries.date, 1) = yearweek(curdate(), 1)
-      GROUP BY
-        activities.activity_name
-  ";
-  $this_week_activities->execute_query($this_week_activities_sql);
+  function get_activities_data_for_this_week(): array
+  {
+    $db_access = new db_access();
+    $this_week_activities_data_sql =
+      " SELECT
+          sec_to_time(sum(time_to_sec(entries.hours_spent))) AS total_hours_for_date,
+          entries.date,
+          activities.activity_name
+        FROM
+          entries
+          INNER JOIN activities ON activities.activity_id = entries.activity_id
+        WHERE
+          yearweek(entries.date, 1) = yearweek(curdate(), 1)
+        GROUP BY
+          entries.date,
+          activities.activity_name
+      ";
+    $db_access->execute_query($this_week_activities_data_sql);
 
-  // echo sql_to_table($db_access);
+    $activities_data = array();
+    while ($data = $db_access->get_next_row()) {
+      $activities_data[$data['activity_name']][] = [
+        'date' => $data['date'],
+        'total_hours_for_date' => $data['total_hours_for_date']
+      ];
+    }
+
+    // Structure of activities data:
+    // [
+    //   'name1' => [
+    //     ['date' => 'XXXX-XX-XX', 'total_hours_for_date' => ''],
+    //     ['date' => 'XXXX-XX-XX', 'total_hours_for_date' => ''],
+    //   ],
+    //   'name2' => [
+    //     ['date' => 'XXXX-XX-XX', 'total_hours_for_date' => ''],
+    //   ]
+    // ]
+
+
+    return $activities_data;
+  }
+
+  $activities_data = get_activities_data_for_this_week();
 
   $table = '<table>';
 
@@ -92,19 +118,20 @@ include_once(__DIR__ . '/utils/sql_utils.php');
   $table .= '</tr>';
   $table .= '</thead>';
 
-
   $table .= '<tbody>';
 
-  while ($row = $this_week_activities->get_next_row()) {
+  foreach ($activities_data as $activity_name => $activity_data) {
+    $days_with_hours_for_activity = get_day_and_hours_array_for_activity_data($activity_data);
+
     $table .= '<tr>';
-    $table .= '<td>' . $row['activity_name'] . '</td>';
-    $table .= '<td>' . get_total_hours_logged_for_activity_for_day($row['activity_id'], 'Monday') . '</td>';
-    $table .= '<td>' . get_total_hours_logged_for_activity_for_day($row['activity_id'], 'Tuesday') . '</td>';
-    $table .= '<td>' . get_total_hours_logged_for_activity_for_day($row['activity_id'], 'Wednesday') . '</td>';
-    $table .= '<td>' . get_total_hours_logged_for_activity_for_day($row['activity_id'], 'Thursday') . '</td>';
-    $table .= '<td>' . get_total_hours_logged_for_activity_for_day($row['activity_id'], 'Friday') . '</td>';
-    $table .= '<td>' . get_total_hours_logged_for_activity_for_day($row['activity_id'], 'Saturday') . '</td>';
-    $table .= '<td>' . get_total_hours_logged_for_activity_for_day($row['activity_id'], 'Sunday') . '</td>';
+    $table .= '<td>' . $activity_name . '</td>';
+    $table .= '<td>' . $days_with_hours_for_activity['Monday'] . '</td>';
+    $table .= '<td>' . $days_with_hours_for_activity['Tuesday'] . '</td>';
+    $table .= '<td>' . $days_with_hours_for_activity['Wednesday'] . '</td>';
+    $table .= '<td>' . $days_with_hours_for_activity['Thursday'] . '</td>';
+    $table .= '<td>' . $days_with_hours_for_activity['Friday'] . '</td>';
+    $table .= '<td>' . $days_with_hours_for_activity['Saturday'] . '</td>';
+    $table .= '<td>' . $days_with_hours_for_activity['Sunday'] . '</td>';
     $table .= '</tr>';
   }
 

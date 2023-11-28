@@ -40,10 +40,12 @@ include_once(__DIR__ . '/../../utils/sql_utils.php');
         entries.end_time
       FROM 
         entries 
-        INNER JOIN goals ON goals.goal_id = entries.goal_id
         INNER JOIN activities ON activities.activity_id = entries.activity_id 
+        INNER JOIN goals ON goals.goal_id = activities.goal_id
       ORDER BY 
-        entries.date DESC
+        entries.date DESC,
+        goals.goal_name,
+        activities.activity_name
   ";
 
   $db_access->execute_query($query);
