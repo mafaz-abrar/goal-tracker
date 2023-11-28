@@ -66,7 +66,8 @@ include_once(__DIR__ . '/utils/sql_utils.php');
       " SELECT
           sec_to_time(sum(time_to_sec(entries.hours_spent))) AS total_hours_for_date,
           entries.date,
-          activities.activity_name
+          activities.activity_name,
+          activities.goal_id
         FROM
           entries
           INNER JOIN activities ON activities.activity_id = entries.activity_id
@@ -75,6 +76,8 @@ include_once(__DIR__ . '/utils/sql_utils.php');
         GROUP BY
           entries.date,
           activities.activity_name
+        ORDER BY
+          activities.goal_id
       ";
     $db_access->execute_query($this_week_activities_data_sql);
 
