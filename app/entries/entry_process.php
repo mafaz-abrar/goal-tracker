@@ -57,5 +57,5 @@ switch ($_GET['mode']) {
     exit('Unknown mode!');
 }
 
-header('Location: ' . 'entries.php');
+header('Location: ' . '../../index.php');
 exit();

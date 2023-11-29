@@ -120,12 +120,12 @@ if ($_GET['mode'] == 'edit') {
 
     <p class="form_input_container">
       <label for='task_description' id='task_description'>Task Description</label>
-      <input name='task_description' type='text' <?php echo $_GET['mode'] === 'edit' ? "value=" . add_single_quotes($entry->task_description) : '' ?> required />
+      <input name='task_description' type='text' <?php echo $_GET['mode'] === 'edit' ? "value=" . add_single_quotes($entry->task_description) : "value='✅'" ?> required />
     </p>
 
     <p class="form_input_container">
       <label for='hours' id='hours'>Hours Spent</label>
-      <input name='hours' type='text' <?php echo $_GET['mode'] === 'edit' ? "value=" . add_single_quotes($entry->hours_spent) : '' ?> required />
+      <input name='hours' type='text' <?php echo $_GET['mode'] === 'edit' ? "value=" . add_single_quotes($entry->hours_spent) : "value='00:05'" ?> required />
     </p>
 
     <p class="form_input_container">
