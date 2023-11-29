@@ -35,6 +35,7 @@ include_once(__DIR__ . '/utils/sql_utils.php');
 
   <p class='controls'>
     <a href='./setup_tables.php'>Setup Tables</a>
+    <a href='./app/entries/entry.php?mode=add'> + Add Entry</a>
   </p>
 
 
