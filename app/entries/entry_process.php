@@ -46,16 +46,18 @@ if (isset($_POST['end_time']) && $_POST['end_time'] != '') {
 switch ($_GET['mode']) {
   case 'add':
     $entry->insert_new();
+    header('Location: ' . '../../index.php');
     break;
   case 'edit':
     $entry->update_existing();
+    header('Location: ' . 'entries.php');
     break;
   case 'delete':
     $entry->delete_existing();
+    header('Location: ' . 'entries.php');
     break;
   default:
     exit('Unknown mode!');
 }
 
-header('Location: ' . '../../index.php');
 exit();

@@ -67,6 +67,7 @@ include_once(__DIR__ . '/utils/sql_utils.php');
       " SELECT
           sec_to_time(sum(time_to_sec(entries.hours_spent))) AS total_hours_for_date,
           entries.date,
+          entries.activity_id,
           activities.activity_name,
           activities.goal_id
         FROM
@@ -76,19 +77,25 @@ include_once(__DIR__ . '/utils/sql_utils.php');
           yearweek(entries.date, 1) = yearweek(curdate(), 1)
         GROUP BY
           entries.date,
-          activities.activity_name
-        ORDER BY
+          entries.activity_id,
+          activities.activity_name,
           activities.goal_id
+        ORDER BY
+          activities.goal_id,
+          activities.activity_name
       ";
     $db_access->execute_query($this_week_activities_data_sql);
 
     $activities_data = array();
     while ($data = $db_access->get_next_row()) {
-      $activities_data[$data['activity_name']][] = [
+      $activities_data[$data['activity_id'] . ';' . $data['activity_name']][] = [
         'date' => $data['date'],
         'total_hours_for_date' => $data['total_hours_for_date']
       ];
     }
+
+    // TODO: use $data['id'] . ';' . $data['name'] to get both name and id, then pass to tables
+    // links to generate buttons.
 
     // Structure of activities data:
     // [
@@ -119,12 +126,17 @@ include_once(__DIR__ . '/utils/sql_utils.php');
   $table .= '<th>Friday</th>';
   $table .= '<th>Saturday</th>';
   $table .= '<th>Sunday</th>';
+  $table .= '<th>Controls</th>';
   $table .= '</tr>';
   $table .= '</thead>';
 
   $table .= '<tbody>';
 
-  foreach ($activities_data as $activity_name => $activity_data) {
+  foreach ($activities_data as $activity_id_and_name => $activity_data) {
+    $activity_id_and_name_array = explode(';', $activity_id_and_name);
+    $activity_id = $activity_id_and_name_array[0];
+    $activity_name = $activity_id_and_name_array[1];
+
     $days_with_hours_for_activity = get_day_and_hours_array_for_activity_data($activity_data);
 
     $table .= '<tr>';
@@ -136,6 +148,10 @@ include_once(__DIR__ . '/utils/sql_utils.php');
     $table .= '<td>' . $days_with_hours_for_activity['Friday'] . '</td>';
     $table .= '<td>' . $days_with_hours_for_activity['Saturday'] . '</td>';
     $table .= '<td>' . $days_with_hours_for_activity['Sunday'] . '</td>';
+
+    $href = './app/entries/entry.php?mode=add&activity_id=' . $activity_id;
+    $table .= "<td><a class='control' href=" . add_single_quotes($href) . ">+ Add</a></td>";
+
     $table .= '</tr>';
   }
 

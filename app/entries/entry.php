@@ -25,8 +25,14 @@ while ($row = $db_access->get_next_row()) {
   $activities[] = $row;
 }
 
-if ($_GET['mode'] == 'edit') {
+if ($_GET['mode'] === 'edit') {
   $entry = new entry($db_access, $_GET['entry_id']);
+}
+
+if ($_GET['mode'] === 'add') {
+  if (isset($_GET['activity_id'])) {
+    $add_activity = new activity(new db_access(), $_GET['activity_id']);
+  }
 }
 
 ?>
@@ -61,6 +67,9 @@ if ($_GET['mode'] == 'edit') {
         echo 'goal_dropdown.val(' . add_single_quotes($activity->goal_id) . ');';
       }
 
+      if ($_GET['mode'] === 'add' && isset($_GET['activity_id'])) {
+        echo 'goal_dropdown.val(' . add_single_quotes($add_activity->goal_id) . ');';
+      }
       ?>
 
       activities.forEach((activity) => {
@@ -72,6 +81,10 @@ if ($_GET['mode'] == 'edit') {
       <?php
       if ($_GET['mode'] === 'edit') {
         echo 'activity_dropdown.val(' . add_single_quotes($entry->activity_id) . ');';
+      }
+
+      if ($_GET['mode'] === 'add' && isset($_GET['activity_id'])) {
+        echo 'activity_dropdown.val(' . add_single_quotes($add_activity->get_id()) . ');';
       }
       ?>
 

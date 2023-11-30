@@ -343,4 +343,26 @@ class activity extends data_object
     $this->goal_id = $data['goal_id'];
     $this->activity_name = $data['activity_name'];
   }
+
+  public function get_goal_name(): string
+  {
+    if (is_null($this->id)) {
+      throw new Exception('Activity ID is null!');
+    }
+
+    $sql =
+      " SELECT 
+        goal_name 
+      FROM 
+        goals
+        INNER JOIN activities ON activities.goal_id = goals.goal_id
+          AND activities.activity_id = " . $this->id . ";";
+
+    $this->db_access->execute_query($sql);
+    if ($this->db_access->has_rows()) {
+      return $this->db_access->get_next_row()['goal_name'];
+    } else {
+      throw new Exception('No goals found!');
+    }
+  }
 }
