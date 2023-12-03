@@ -48,6 +48,7 @@ if ($_GET['mode'] === 'add') {
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel='stylesheet' href='../../styles/styles.css' />
+  <link rel="shortcut icon" type="image/x-icon" href="../../icon.ico" />
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script>
     $(document).ready(() => {
@@ -133,7 +134,7 @@ if ($_GET['mode'] === 'add') {
 
     <p class="form_input_container">
       <label for='task_description' id='task_description'>Task Description</label>
-      <input name='task_description' type='text' <?php echo $_GET['mode'] === 'edit' ? "value=" . add_single_quotes($entry->task_description) : "value='✅'" ?> required />
+      <textarea name='task_description' rows='4' cols='50' required><?php echo $_GET['mode'] === 'edit' ? $entry->task_description : '✅' ?></textarea>
     </p>
 
     <p class="form_input_container">
