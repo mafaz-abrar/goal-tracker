@@ -39,6 +39,14 @@ include_once(__DIR__ . '/utils/sql_utils.php');
     <a href='./app/entries/entry.php?mode=add'> + Add Entry</a>
   </p>
 
+  <form action="index.php" method="POST">
+    <p class='form_input_container'>
+      <label for='filter_date'>Date</label>
+      <input type='date' name='filter_date' <?php echo isset($_POST['filter_date']) ? "value=" . add_single_quotes($_POST['filter_date']) : '' ?> />
+      <button>Filter</button>
+    </p>
+  </form>
+
 
   <?php
 
@@ -61,7 +69,7 @@ include_once(__DIR__ . '/utils/sql_utils.php');
     return $data;
   }
 
-  function get_activities_data_for_this_week(): array
+  function get_activities_data_for_this_week(string $date): array
   {
     $db_access = new db_access();
     $this_week_activities_data_sql =
@@ -75,7 +83,7 @@ include_once(__DIR__ . '/utils/sql_utils.php');
           entries
           INNER JOIN activities ON activities.activity_id = entries.activity_id
         WHERE
-          yearweek(entries.date, 1) = yearweek(curdate(), 1)
+          yearweek(entries.date, 1) = yearweek(" . add_single_quotes($date) . ", 1) 
         GROUP BY
           entries.date,
           entries.activity_id,
@@ -113,20 +121,26 @@ include_once(__DIR__ . '/utils/sql_utils.php');
     return $activities_data;
   }
 
-  $activities_data = get_activities_data_for_this_week();
+  if (isset($_POST['filter_date'])) {
+    $filter_date = $_POST['filter_date'];
+  } else {
+    $filter_date = date("Y-m-d");
+  }
+
+  $activities_data = get_activities_data_for_this_week($filter_date);
 
   $table = '<table>';
 
   $table .= '<thead>';
   $table .= '<tr>';
   $table .= '<th>Activity</th>';
-  $table .= '<th>Monday</th>';
-  $table .= '<th>Tuesday</th>';
-  $table .= '<th>Wednesday</th>';
-  $table .= '<th>Thursday</th>';
-  $table .= '<th>Friday</th>';
-  $table .= '<th>Saturday</th>';
-  $table .= '<th>Sunday</th>';
+  $table .= '<th>Monday ' . date('d/m', strtotime('Monday')) . '</th>';
+  $table .= '<th>Tuesday ' . date('d/m', strtotime('Tuesday')) . '</th>';
+  $table .= '<th>Wednesday ' . date('d/m', strtotime('Wednesday')) . '</th>';
+  $table .= '<th>Thursday ' . date('d/m', strtotime('Thursday')) . '</th>';
+  $table .= '<th>Friday ' . date('d/m', strtotime('Friday')) . '</th>';
+  $table .= '<th>Saturday ' . date('d/m', strtotime('Saturday')) . '</th>';
+  $table .= '<th>Sunday ' . date('d/m', strtotime('Sunday')) . '</th>';
   $table .= '<th>Controls</th>';
   $table .= '</tr>';
   $table .= '</thead>';
@@ -151,7 +165,7 @@ include_once(__DIR__ . '/utils/sql_utils.php');
     $table .= '<td>' . $days_with_hours_for_activity['Sunday'] . '</td>';
 
     $href = './app/entries/entry.php?mode=add&activity_id=' . $activity_id;
-    $table .= "<td><a class='control' href=" . add_single_quotes($href) . ">+ Add</a></td>";
+    $table .= "<td><a class='control' href=" . add_single_quotes($href) . ">+Add</a></td>";
 
     $table .= '</tr>';
   }
