@@ -1,6 +1,19 @@
 <?php
 include_once(__DIR__ . '/../../framework/db_access.php');
 include_once(__DIR__ . '/../../utils/sql_utils.php');
+
+$db_access = new db_access();
+
+$goals = array();
+
+$goals_select_query =
+  "SELECT * FROM goals";
+
+$db_access->execute_query($goals_select_query);
+
+while ($row = $db_access->get_next_row()) {
+  $goals[] = $row;
+}
 ?>
 
 <!DOCTYPE html>
@@ -11,6 +24,26 @@ include_once(__DIR__ . '/../../utils/sql_utils.php');
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel='stylesheet' href="../../styles/styles.css" />
   <link rel="shortcut icon" type="image/x-icon" href="../../icon.ico" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script>
+    $(document).ready(() => {
+      let goals = <?php echo json_encode($goals); ?>;
+
+      let goal_dropdown = $("#filter_goal_dropdown");
+
+      goals.forEach((goal) => {
+        goal_dropdown.append(new Option(goal.goal_name, goal.goal_id));
+      });
+
+      <?php
+      if (isset($_POST['filter_goal_id'])) {
+        echo "$('#filter_goal_dropdown option[value=" . $_POST['filter_goal_id'] .
+          "]').attr('selected', 'selected');";
+      }
+      ?>
+
+    });
+  </script>
   <title>Goal Tracker</title>
 </head>
 
@@ -25,6 +58,14 @@ include_once(__DIR__ . '/../../utils/sql_utils.php');
   </p>
 
   <p class='controls'><a href='./activity.php?mode=add'> + Add Activity</a></p>
+
+  <form action='activities.php' method='post'>
+    <p class="form_input_container">
+      <select name='filter_goal_id' id='filter_goal_dropdown'>
+      </select>
+      <button>Filter By Goal</button>
+    </p>
+  </form>
 
   <?php
   $db_access = new db_access();
@@ -41,6 +82,23 @@ include_once(__DIR__ . '/../../utils/sql_utils.php');
         goals.goal_name,
         activities.activity_name
     ";
+
+  if (isset($_POST['filter_goal_id'])) {
+    $query =
+      "SELECT
+        activities.activity_id,
+        goals.goal_name,
+        activities.activity_name
+      FROM 
+        activities
+        INNER JOIN goals ON goals.goal_id = activities.goal_id
+      WHERE
+        activities.goal_id = " . $_POST['filter_goal_id']  . "
+      ORDER BY
+        goals.goal_name,
+        activities.activity_name
+    ";
+  }
 
   $db_access->execute_query($query);
 

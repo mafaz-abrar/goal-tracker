@@ -41,7 +41,7 @@ include_once(__DIR__ . '/utils/sql_utils.php');
 
   <form action="index.php" method="POST">
     <p class='form_input_container'>
-      <label for='filter_date'>Date</label>
+      <label for='filter_date'>Date: </label>
       <input type='date' name='filter_date' <?php echo isset($_POST['filter_date']) ? "value=" . add_single_quotes($_POST['filter_date']) : '' ?> />
       <button>Filter</button>
     </p>
@@ -134,13 +134,13 @@ include_once(__DIR__ . '/utils/sql_utils.php');
   $table .= '<thead>';
   $table .= '<tr>';
   $table .= '<th>Activity</th>';
-  $table .= '<th>Monday ' . date('d/m', strtotime('Monday')) . '</th>';
-  $table .= '<th>Tuesday ' . date('d/m', strtotime('Tuesday')) . '</th>';
-  $table .= '<th>Wednesday ' . date('d/m', strtotime('Wednesday')) . '</th>';
-  $table .= '<th>Thursday ' . date('d/m', strtotime('Thursday')) . '</th>';
-  $table .= '<th>Friday ' . date('d/m', strtotime('Friday')) . '</th>';
-  $table .= '<th>Saturday ' . date('d/m', strtotime('Saturday')) . '</th>';
-  $table .= '<th>Sunday ' . date('d/m', strtotime('Sunday')) . '</th>';
+  $table .= '<th>Monday (' . date('d/m', strtotime('Monday')) . ')</th>';
+  $table .= '<th>Tuesday (' . date('d/m', strtotime('Tuesday')) . ')</th>';
+  $table .= '<th>Wednesday (' . date('d/m', strtotime('Wednesday')) . ')</th>';
+  $table .= '<th>Thursday (' . date('d/m', strtotime('Thursday')) . ')</th>';
+  $table .= '<th>Friday (' . date('d/m', strtotime('Friday')) . ')</th>';
+  $table .= '<th>Saturday (' . date('d/m', strtotime('Saturday')) . ')</th>';
+  $table .= '<th>Sunday (' . date('d/m', strtotime('Sunday')) . ')</th>';
   $table .= '<th>Controls</th>';
   $table .= '</tr>';
   $table .= '</thead>';
