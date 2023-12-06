@@ -39,14 +39,12 @@ include_once(__DIR__ . '/utils/sql_utils.php');
     <a href='./app/entries/entry.php?mode=add'> + Add Entry</a>
   </p>
 
-  <form action="index.php" method="POST">
+  <form action="index.php" method="POST" class='control-form'>
     <p class='form_input_container'>
-      <label for='filter_date'>Date: </label>
-      <input type='date' name='filter_date' <?php echo isset($_POST['filter_date']) ? "value=" . add_single_quotes($_POST['filter_date']) : '' ?> />
-      <button>Filter</button>
+      <input type='date' name='filter_date' class='filter-input' <?php echo isset($_POST['filter_date']) ? "value=" . add_single_quotes($_POST['filter_date']) : '' ?> />
+      <button>Filter By Date</button>
     </p>
   </form>
-
 
   <?php
 

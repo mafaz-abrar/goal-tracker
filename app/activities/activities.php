@@ -59,9 +59,9 @@ while ($row = $db_access->get_next_row()) {
 
   <p class='controls'><a href='./activity.php?mode=add'> + Add Activity</a></p>
 
-  <form action='activities.php' method='post'>
+  <form action='activities.php' method='post' class='control-form'>
     <p class="form_input_container">
-      <select name='filter_goal_id' id='filter_goal_dropdown'>
+      <select name='filter_goal_id' id='filter_goal_dropdown' class='filter-input'>
       </select>
       <button>Filter By Goal</button>
     </p>
