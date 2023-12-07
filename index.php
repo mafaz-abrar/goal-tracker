@@ -76,17 +76,20 @@ include_once(__DIR__ . '/utils/sql_utils.php');
           entries.date,
           entries.activity_id,
           activities.activity_name,
-          activities.goal_id
+          activities.goal_id,
+          goals.goal_name
         FROM
           entries
           INNER JOIN activities ON activities.activity_id = entries.activity_id
+          INNER JOIN goals ON goals.goal_id = activities.goal_id
         WHERE
           yearweek(entries.date, 1) = yearweek(" . add_single_quotes($date) . ", 1) 
         GROUP BY
           entries.date,
           entries.activity_id,
           activities.activity_name,
-          activities.goal_id
+          activities.goal_id,
+          goals.goal_name
         ORDER BY
           activities.goal_id,
           activities.activity_name
@@ -95,7 +98,7 @@ include_once(__DIR__ . '/utils/sql_utils.php');
 
     $activities_data = array();
     while ($data = $db_access->get_next_row()) {
-      $activities_data[$data['activity_id'] . ';' . $data['activity_name']][] = [
+      $activities_data[$data['activity_id'] . ';' . $data['goal_name'] . ';' . $data['activity_name']][] = [
         'date' => $data['date'],
         'total_hours_for_date' => $data['total_hours_for_date']
       ];
@@ -131,6 +134,7 @@ include_once(__DIR__ . '/utils/sql_utils.php');
 
   $table .= '<thead>';
   $table .= '<tr>';
+  $table .= '<th>Goal</th>';
   $table .= '<th>Activity</th>';
   $table .= '<th>Monday</th>';
   $table .= '<th>Tuesday</th>';
@@ -148,11 +152,14 @@ include_once(__DIR__ . '/utils/sql_utils.php');
   foreach ($activities_data as $activity_id_and_name => $activity_data) {
     $activity_id_and_name_array = explode(';', $activity_id_and_name);
     $activity_id = $activity_id_and_name_array[0];
-    $activity_name = $activity_id_and_name_array[1];
+    $goal_name = $activity_id_and_name_array[1];
+    $activity_name = $activity_id_and_name_array[2];
+
 
     $days_with_hours_for_activity = get_day_and_hours_array_for_activity_data($activity_data);
 
     $table .= '<tr>';
+    $table .= '<td>' . $goal_name . '</td>';
     $table .= '<td>' . $activity_name . '</td>';
     $table .= '<td>' . $days_with_hours_for_activity['Monday'] . '</td>';
     $table .= '<td>' . $days_with_hours_for_activity['Tuesday'] . '</td>';
