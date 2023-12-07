@@ -48,6 +48,31 @@ include_once(__DIR__ . '/utils/sql_utils.php');
 
   <?php
 
+  function get_activities_as_array(): array
+  {
+    $db_access = new db_access();
+    $activities_sql =
+      " SELECT
+          activities.activity_id,
+          activities.activity_name,
+          goals.goal_name
+        FROM
+          activities
+          INNER JOIN goals ON goals.goal_id = activities.goal_id
+        ORDER BY
+          goals.goal_name,
+          activities.activity_name
+      ";
+    $db_access->execute_query($activities_sql);
+
+    $activities = array();
+    while ($data = $db_access->get_next_row()) {
+      $activities[$data['activity_id']] = $data['goal_name'] . ';' . $data['activity_name'];
+    }
+
+    return $activities;
+  }
+
   function get_day_and_hours_array_for_activity_data(array $activity_data): array
   {
     $data = array();
@@ -74,31 +99,20 @@ include_once(__DIR__ . '/utils/sql_utils.php');
       " SELECT
           sec_to_time(sum(time_to_sec(entries.hours_spent))) AS total_hours_for_date,
           entries.date,
-          entries.activity_id,
-          activities.activity_name,
-          activities.goal_id,
-          goals.goal_name
+          entries.activity_id
         FROM
           entries
-          INNER JOIN activities ON activities.activity_id = entries.activity_id
-          INNER JOIN goals ON goals.goal_id = activities.goal_id
         WHERE
           yearweek(entries.date, 1) = yearweek(" . add_single_quotes($date) . ", 1) 
         GROUP BY
           entries.date,
-          entries.activity_id,
-          activities.activity_name,
-          activities.goal_id,
-          goals.goal_name
-        ORDER BY
-          goals.goal_name,
-          activities.activity_name
+          entries.activity_id
       ";
     $db_access->execute_query($this_week_activities_data_sql);
 
     $activities_data = array();
     while ($data = $db_access->get_next_row()) {
-      $activities_data[$data['activity_id'] . ';' . $data['goal_name'] . ';' . $data['activity_name']][] = [
+      $activities_data[$data['activity_id']][] = [
         'date' => $data['date'],
         'total_hours_for_date' => $data['total_hours_for_date']
       ];
@@ -129,6 +143,7 @@ include_once(__DIR__ . '/utils/sql_utils.php');
   }
 
   $activities_data = get_activities_data_for_this_week($filter_date);
+  $activities_as_array = get_activities_as_array();
 
   $table = '<table>';
 
@@ -149,14 +164,26 @@ include_once(__DIR__ . '/utils/sql_utils.php');
 
   $table .= '<tbody>';
 
-  foreach ($activities_data as $activity_id_and_name => $activity_data) {
-    $activity_id_and_name_array = explode(';', $activity_id_and_name);
-    $activity_id = $activity_id_and_name_array[0];
-    $goal_name = $activity_id_and_name_array[1];
-    $activity_name = $activity_id_and_name_array[2];
+  // loop over actvities array inseatd of activities_data arraay
+  // match on id - use id as key for activties_data
+  foreach ($activities_as_array as $activity_id => $goal_name_and_activity_name) {
+    $goal_name_and_activity_name_array = explode(';', $goal_name_and_activity_name);
+    $goal_name = $goal_name_and_activity_name_array[0];
+    $activity_name = $goal_name_and_activity_name_array[1];
 
-
-    $days_with_hours_for_activity = get_day_and_hours_array_for_activity_data($activity_data);
+    if (isset($activities_data[$activity_id])) {
+      $days_with_hours_for_activity = get_day_and_hours_array_for_activity_data($activities_data[$activity_id]);
+    } else {
+      $days_with_hours_for_activity = [
+        'Monday' => '',
+        'Tuesday' => '',
+        'Wednesday' => '',
+        'Thursday' => '',
+        'Friday' => '',
+        'Saturday' => '',
+        'Sunday' => ''
+      ];
+    }
 
     $table .= '<tr>';
     $table .= '<td>' . $goal_name . '</td>';
