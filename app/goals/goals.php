@@ -34,6 +34,8 @@ include_once(__DIR__ . '/../../utils/sql_utils.php');
        *
       FROM 
         goals
+      ORDER BY
+        goal_name
     ";
 
   $db_access->execute_query($query);
