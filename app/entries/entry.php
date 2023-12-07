@@ -8,7 +8,7 @@ $goals = array();
 $activities = array();
 
 $goals_select_query =
-  "SELECT * FROM goals";
+  "SELECT * FROM goals ORDER BY goal_name";
 
 $activities_select_query =
   "SELECT * FROM activities";

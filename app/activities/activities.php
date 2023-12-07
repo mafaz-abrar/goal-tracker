@@ -7,7 +7,7 @@ $db_access = new db_access();
 $goals = array();
 
 $goals_select_query =
-  "SELECT * FROM goals";
+  "SELECT * FROM goals ORDER BY goal_name";
 
 $db_access->execute_query($goals_select_query);
 
