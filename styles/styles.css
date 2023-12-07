@@ -108,6 +108,11 @@ tbody tr:nth-child(odd) {
   border-radius: 10px;
 }
 
+.failure-cell {
+  color: black;
+  background-color: rgba(253, 134, 134, 0.335);
+}
+
 
 
 

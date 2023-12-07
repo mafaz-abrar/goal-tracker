@@ -155,19 +155,19 @@ include_once(__DIR__ . '/utils/sql_utils.php');
     $goal_name = $activity_id_and_name_array[1];
     $activity_name = $activity_id_and_name_array[2];
 
-
+    $failure_row = $goal_name === 'Keep track of my failures';
     $days_with_hours_for_activity = get_day_and_hours_array_for_activity_data($activity_data);
 
     $table .= '<tr>';
     $table .= '<td>' . $goal_name . '</td>';
     $table .= '<td>' . $activity_name . '</td>';
-    $table .= '<td>' . $days_with_hours_for_activity['Monday'] . '</td>';
-    $table .= '<td>' . $days_with_hours_for_activity['Tuesday'] . '</td>';
-    $table .= '<td>' . $days_with_hours_for_activity['Wednesday'] . '</td>';
-    $table .= '<td>' . $days_with_hours_for_activity['Thursday'] . '</td>';
-    $table .= '<td>' . $days_with_hours_for_activity['Friday'] . '</td>';
-    $table .= '<td>' . $days_with_hours_for_activity['Saturday'] . '</td>';
-    $table .= '<td>' . $days_with_hours_for_activity['Sunday'] . '</td>';
+    $table .= (($failure_row && $days_with_hours_for_activity['Monday'] !== '') ? "<td class='failure-cell'>" : '<td>') . $days_with_hours_for_activity['Monday'] . '</td>';
+    $table .= (($failure_row && $days_with_hours_for_activity['Tuesday'] !== '') ? "<td class='failure-cell'>" : '<td>') . $days_with_hours_for_activity['Tuesday'] . '</td>';
+    $table .= (($failure_row && $days_with_hours_for_activity['Wednesday'] !== '') ? "<td class='failure-cell'>" : '<td>') . $days_with_hours_for_activity['Wednesday'] . '</td>';
+    $table .= (($failure_row && $days_with_hours_for_activity['Thursday'] !== '') ? "<td class='failure-cell'>" : '<td>') . $days_with_hours_for_activity['Thursday'] . '</td>';
+    $table .= (($failure_row && $days_with_hours_for_activity['Friday'] !== '') ? "<td class='failure-cell'>" : '<td>') . $days_with_hours_for_activity['Friday'] . '</td>';
+    $table .= (($failure_row && $days_with_hours_for_activity['Saturday'] !== '') ? "<td class='failure-cell'>" : '<td>') . $days_with_hours_for_activity['Saturday'] . '</td>';
+    $table .= (($failure_row && $days_with_hours_for_activity['Sunday'] !== '') ? "<td class='failure-cell'>" : '<td>') . $days_with_hours_for_activity['Sunday'] . '</td>';
 
     $href = './app/entries/entry.php?mode=add&activity_id=' . $activity_id;
     $table .= "<td><a class='control' href=" . add_single_quotes($href) . ">+Add</a></td>";
