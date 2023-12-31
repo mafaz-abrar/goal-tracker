@@ -17,16 +17,6 @@ include_once(__DIR__ . '/utils/sql_utils.php');
 <body>
   <h1>Goal Tracker</h1>
 
-  <?php
-  if (isset($_GET['tables_created'])) {
-    if ($_GET['tables_created']) {
-      echo "<p class='success'>Tables created successfully.</p>";
-    } else {
-      echo "<p class='errors'>" . $_GET['errors'] . '</p>';
-    }
-  }
-  ?>
-
   <p class='links'>
     <a href='./index.php'>Home</a>
     <a href='./app/entries/entries.php'>Entries</a>
@@ -35,7 +25,6 @@ include_once(__DIR__ . '/utils/sql_utils.php');
   </p>
 
   <p class='controls'>
-    <a href='./setup_tables.php'>Setup Tables</a>
     <a href='./app/entries/entry.php?mode=add'> + Add Entry</a>
   </p>
 
