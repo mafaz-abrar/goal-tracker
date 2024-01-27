@@ -1,4 +1,5 @@
 <?php
+include_once('../api/api_utils.php');
 include_once(__DIR__ . '/db_config.php');
 include_once(__DIR__ . '/../utils/sql_utils.php');
 
@@ -238,13 +239,19 @@ class entry extends data_object
 
   protected function save_data()
   {
-    if (is_null($this->goal_id)) {
-      throw new Exception("Goal ID is null!");
-    }
+    $response = new Response();
+    $response->append($this);
 
     if (is_null($this->activity_id)) {
-      throw new Exception("Activity ID is null!");
+      // throw new Exception("Activity ID is null! Right? " . $this->activity_id);
+      $response->append('Activity ID is null! Right?' . $this->activity_id);
+      $response->generate();
+      exit();
     }
+
+    // $response->append('Activity ID is not null!');
+    // $response->generate();
+    // exit();
 
     if (is_null($this->date)) {
       throw new Exception("Date is null!");
@@ -259,7 +266,6 @@ class entry extends data_object
     }
 
     $this->data = [
-      'goal_id' => $this->goal_id,
       'activity_id' => $this->activity_id,
       'date' => add_single_quotes($this->date),
       'task_description' => add_single_quotes($this->task_description),
@@ -271,7 +277,6 @@ class entry extends data_object
 
   protected function load_data(array $data)
   {
-    $this->goal_id = $data['goal_id'];
     $this->activity_id = $data['activity_id'];
     $this->date = $data['date'];
     $this->task_description = $data['task_description'];

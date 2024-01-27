@@ -1,7 +1,10 @@
 <?php
-include_once(__DIR__ . '/../../framework/db_access.php');
+include('./api_utils.php');
+include('../framework/db_access.php');
 
 $db_access = new db_access();
+
+
 
 switch ($_GET['mode']) {
   case 'add':
@@ -9,18 +12,19 @@ switch ($_GET['mode']) {
     break;
   case 'edit':
   case 'delete':
-    $entry = new entry($db_access, $_GET['entry_id']);
+    $entry = new entry($db_access, $_POST['entry_id']);
     break;
   default:
-    exit('Unknown mode!');
+    throw new Exception('Unknown mode!');
 }
 
-if (isset($_POST['goal_id'])) {
-  $entry->goal_id = $_POST['goal_id'];
-}
+// // if (isset($_POST['goal_id'])) {
+// //   $entry->goal_id = $_POST['goal_id'];
+// // }
 
-if (isset($_POST['activity_id']))
+if (isset($_POST['activity_id'])) {
   $entry->activity_id = $_POST['activity_id'];
+}
 
 if (isset($_POST['date']))
   $entry->date = $_POST['date'];
@@ -46,18 +50,13 @@ if (isset($_POST['end_time']) && $_POST['end_time'] != '') {
 switch ($_GET['mode']) {
   case 'add':
     $entry->insert_new();
-    header('Location: ' . '../../index.php');
     break;
   case 'edit':
     $entry->update_existing();
-    header('Location: ' . 'entries.php');
     break;
   case 'delete':
     $entry->delete_existing();
-    header('Location: ' . 'entries.php');
     break;
   default:
-    exit('Unknown mode!');
+    throw new Exception('Unknown mode!');
 }
-
-exit();

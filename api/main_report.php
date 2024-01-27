@@ -137,4 +137,4 @@ function weekly_entries_api(): array
   return $weekly_entries;
 }
 
-generate_response(weekly_entries_api());
+generate_json_response(weekly_entries_api());
