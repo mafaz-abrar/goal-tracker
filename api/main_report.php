@@ -2,22 +2,27 @@
 include('./api_utils.php');
 include('../framework/db_access.php');
 
-class WeeklyEntry
+class simple_activity
 {
   public int $activity_id;
-  public string $activity_name;
   public int $goal_id;
-  public string $goal_name;
+  public string $activity_name;
   public bool $targeting;
   public int $weighting;
+}
 
-  public string $monday_hours;
-  public string $tuesday_hours;
-  public string $wednesday_hours;
-  public string $thursday_hours;
-  public string $friday_hours;
-  public string $saturday_hours;
-  public string $sunday_hours;
+class weekly_entry
+{
+  public simple_activity $activity;
+  public string $goal_name;
+
+  public int $monday_time;
+  public int $tuesday_time;
+  public int $wednesday_time;
+  public int $thursday_time;
+  public int $friday_time;
+  public int $saturday_time;
+  public int $sunday_time;
 }
 
 function get_weekly_entries_list(string $filter_date): array
@@ -62,14 +67,25 @@ function get_weekly_entries_list(string $filter_date): array
 
   $weekly_entries = array();
   while ($row = $db_access->get_next_row()) {
-    $weekly_entry = new WeeklyEntry();
-    $weekly_entry->activity_id = $row['activity_id'];
-    $weekly_entry->activity_name = $row['activity_name'];
-    $weekly_entry->goal_id = $row['goal_id'];
+    $activity = new simple_activity();
+    $activity->activity_id = $row['activity_id'];
+    $activity->activity_name = $row['activity_name'];
+    $activity->goal_id = $row['goal_id'];
+    $activity->targeting = $row['targeting'];
+    $activity->weighting = $row['weighting'];
+
+    $weekly_entry = new weekly_entry();
     $weekly_entry->goal_name = $row['goal_name'];
-    $weekly_entry->targeting = $row['targeting'];
-    $weekly_entry->weighting = $row['weighting'];
-    $weekly_entries[$weekly_entry->activity_id] = $weekly_entry;
+    $weekly_entry->activity = $activity;
+    $weekly_entry->monday_time = 0;
+    $weekly_entry->tuesday_time = 0;
+    $weekly_entry->wednesday_time = 0;
+    $weekly_entry->thursday_time = 0;
+    $weekly_entry->friday_time = 0;
+    $weekly_entry->saturday_time = 0;
+    $weekly_entry->sunday_time = 0;
+
+    $weekly_entries[$row['activity_id']] = $weekly_entry;
   }
 
   return $weekly_entries;
@@ -80,7 +96,7 @@ function populate_weekly_entries_hours(array $weekly_entries, string $filter_dat
   $db_access = new db_access();
   $activities_data_sql =
     " SELECT
-      sec_to_time(sum(time_to_sec(entries.hours_spent))) AS total_hours_for_date,
+      sum(time_spent) AS total_sec_for_date,
       entries.date,
       entries.activity_id
     FROM
@@ -90,7 +106,7 @@ function populate_weekly_entries_hours(array $weekly_entries, string $filter_dat
     GROUP BY
       entries.date,
       entries.activity_id
-  ";
+    ";
   $db_access->execute_query($activities_data_sql);
 
   while ($row = $db_access->get_next_row()) {
@@ -98,25 +114,25 @@ function populate_weekly_entries_hours(array $weekly_entries, string $filter_dat
 
     switch (date('l', strtotime($row['date']))) {
       case 'Monday':
-        $weekly_entry->monday_hours = $row['total_hours_for_date'];
+        $weekly_entry->monday_time = $row['total_sec_for_date'] / 60;
         break;
       case 'Tuesday':
-        $weekly_entry->tuesday_hours = $row['total_hours_for_date'];
+        $weekly_entry->tuesday_time = $row['total_sec_for_date'] / 60;
         break;
       case 'Wednesday':
-        $weekly_entry->wednesday_hours = $row['total_hours_for_date'];
+        $weekly_entry->wednesday_time = $row['total_sec_for_date'] / 60;
         break;
       case 'Thursday':
-        $weekly_entry->thursday_hours = $row['total_hours_for_date'];
+        $weekly_entry->thursday_time = $row['total_sec_for_date'] / 60;
         break;
       case 'Friday':
-        $weekly_entry->friday_hours = $row['total_hours_for_date'];
+        $weekly_entry->friday_time = $row['total_sec_for_date'] / 60;
         break;
       case 'Saturday':
-        $weekly_entry->saturday_hours = $row['total_hours_for_date'];
+        $weekly_entry->saturday_time = $row['total_sec_for_date'] / 60;
         break;
       case 'Sunday':
-        $weekly_entry->sunday_hours = $row['total_hours_for_date'];
+        $weekly_entry->sunday_time = $row['total_sec_for_date'] / 60;
         break;
     }
   }
@@ -127,8 +143,8 @@ function weekly_entries_api(): array
   $filter_date = date('Y-m-d');
   // $filter_date = date('2023-12-01');
 
-  if (isset($_POST['filter_date'])) {
-    $filter_date = $_POST['filter_date'];
+  if (isset($_GET['filter_date'])) {
+    $filter_date = $_GET['filter_date'];
   }
 
   $weekly_entries = get_weekly_entries_list($filter_date);

@@ -47,16 +47,28 @@ if (isset($_POST['end_time']) && $_POST['end_time'] != '') {
   $entry->end_time = null;
 }
 
-switch ($_GET['mode']) {
-  case 'add':
-    $entry->insert_new();
-    break;
-  case 'edit':
-    $entry->update_existing();
-    break;
-  case 'delete':
-    $entry->delete_existing();
-    break;
-  default:
-    throw new Exception('Unknown mode!');
+// $res = new Response();
+// $res->append($entry);
+// $res->generate();
+// exit();
+try {
+  switch ($_GET['mode']) {
+    case 'add':
+
+      $entry->insert_new();
+
+      break;
+    case 'edit':
+      $entry->update_existing();
+      break;
+    case 'delete':
+      $entry->delete_existing();
+      break;
+    default:
+      throw new Exception('Unknown mode!');
+  }
+} catch (Exception $err) {
+  generate_json_response($err->getMessage());
 }
+
+generate_json_response('Success!');

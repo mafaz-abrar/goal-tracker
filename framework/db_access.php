@@ -216,7 +216,7 @@ abstract class data_object
 
 class entry extends data_object
 {
-  public ?int $goal_id;
+  // public ?int $goal_id;
   public ?int $activity_id;
   public ?string $date;
   public ?string $task_description;
@@ -226,7 +226,7 @@ class entry extends data_object
 
   public function __construct(db_access $db_access, int $id = null)
   {
-    $this->goal_id = null;
+    // $this->goal_id = null;
     $this->activity_id = null;
     $this->date = null;
     $this->task_description = null;
@@ -239,19 +239,9 @@ class entry extends data_object
 
   protected function save_data()
   {
-    $response = new Response();
-    $response->append($this);
-
     if (is_null($this->activity_id)) {
-      // throw new Exception("Activity ID is null! Right? " . $this->activity_id);
-      $response->append('Activity ID is null! Right?' . $this->activity_id);
-      $response->generate();
-      exit();
+      throw new Exception("Activity ID is null!");
     }
-
-    // $response->append('Activity ID is not null!');
-    // $response->generate();
-    // exit();
 
     if (is_null($this->date)) {
       throw new Exception("Date is null!");
@@ -318,11 +308,15 @@ class activity extends data_object
 {
   public ?int $goal_id;
   public ?string $activity_name;
+  public ?bool $targeting;
+  public ?int $weighting;
 
   public function __construct(db_access $db_access, int $id = null)
   {
     $this->goal_id = null;
     $this->activity_name = null;
+    $this->targeting = null;
+    $this->weighting = null;
 
     parent::__construct($db_access, 'activity_id', 'activities', $id);
   }
@@ -337,9 +331,19 @@ class activity extends data_object
       throw new Exception("Activity name is null!");
     }
 
+    if (is_null($this->targeting)) {
+      throw new Exception('Targeting is null!');
+    }
+
+    if (is_null($this->weighting)) {
+      throw new Exception('Weighting is null!');
+    }
+
     $this->data = [
       'goal_id' => $this->goal_id,
-      'activity_name' => add_single_quotes($this->activity_name)
+      'activity_name' => add_single_quotes($this->activity_name),
+      'targeting' => $this->targeting,
+      'weighting' => $this->weighting
     ];
   }
 
@@ -347,6 +351,8 @@ class activity extends data_object
   {
     $this->goal_id = $data['goal_id'];
     $this->activity_name = $data['activity_name'];
+    $this->targeting = $data['targeting'];
+    $this->weighting = $data['weighting'];
   }
 
   public function get_goal_name(): string
