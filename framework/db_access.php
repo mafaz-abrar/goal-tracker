@@ -216,7 +216,6 @@ abstract class data_object
 
 class entry extends data_object
 {
-  // public ?int $goal_id;
   public ?int $activity_id;
   public ?string $date;
   public ?string $task_description;
@@ -226,7 +225,6 @@ class entry extends data_object
 
   public function __construct(db_access $db_access, int $id = null)
   {
-    // $this->goal_id = null;
     $this->activity_id = null;
     $this->date = null;
     $this->task_description = null;
@@ -342,7 +340,7 @@ class activity extends data_object
     $this->data = [
       'goal_id' => $this->goal_id,
       'activity_name' => add_single_quotes($this->activity_name),
-      'targeting' => $this->targeting,
+      'targeting' => $this->targeting ? 1 : 0,
       'weighting' => $this->weighting
     ];
   }
@@ -351,7 +349,7 @@ class activity extends data_object
   {
     $this->goal_id = $data['goal_id'];
     $this->activity_name = $data['activity_name'];
-    $this->targeting = $data['targeting'];
+    $this->targeting = $data['targeting'] == 1 ? true : false;
     $this->weighting = $data['weighting'];
   }
 
