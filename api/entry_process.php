@@ -4,8 +4,6 @@ include('../framework/db_access.php');
 
 $db_access = new db_access();
 
-
-
 switch ($_GET['mode']) {
   case 'add':
     $entry = new entry($db_access);
@@ -69,6 +67,7 @@ try {
   }
 } catch (Exception $err) {
   generate_json_response($err->getMessage());
+  exit();
 }
 
 generate_json_response('Success!');

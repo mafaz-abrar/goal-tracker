@@ -15,6 +15,7 @@ class simple_entry
 class expanded_entry
 {
   public string $goal_name;
+  public int $goal_id;
   public string $activity_name;
   public simple_entry $entry;
 }
