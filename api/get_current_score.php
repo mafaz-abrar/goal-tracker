@@ -2,7 +2,7 @@
 include_once('../framework/db_access.php');
 include_once('./api_utils.php');
 
-function get_current_score(): string
+function get_current_score(string $date): string
 {
   $sql =
     " SELECT 
@@ -11,7 +11,7 @@ function get_current_score(): string
         entries
         INNER JOIN activities ON entries.activity_id = activities.activity_id
       WHERE
-        yearweek(entries.date, 1) = yearweek(CURDATE(), 1)
+        yearweek(entries.date, 1) = yearweek(" . add_single_quotes($date) . ", 1)
   ";
 
   $db_access = new db_access();
@@ -22,7 +22,9 @@ function get_current_score(): string
     $data['score'] = $row['score'];
   }
 
+  if (is_null($data['score'])) $data['score'] = 0;
+
   return $data['score'];
 }
 
-generate_json_response(get_current_score());
+generate_json_response(get_current_score($_GET['filter_date']));
