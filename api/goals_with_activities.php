@@ -29,11 +29,12 @@ function get_goals_with_activities()
 
   $sql =
     " SELECT
+      goals.goal_id AS real_goal_id,
       goals.goal_name,
       activities.*
     FROM
       goals
-      INNER JOIN activities ON activities.goal_id = goals.goal_id
+      LEFT JOIN activities ON activities.goal_id = goals.goal_id
   ";
 
   $db_access->execute_query($sql);
@@ -41,17 +42,18 @@ function get_goals_with_activities()
   $goals = array();
 
   while ($row = $db_access->get_next_row()) {
-    $goals[$row['goal_id']]['goal_name'] = $row['goal_name'];
+    $goals[$row['real_goal_id']]['goal_name'] = $row['goal_name'];
 
-    $activity = new simple_activity();
-    $activity->activity_id = $row['activity_id'];
-    $activity->goal_id = $row['goal_id'];
-    $activity->activity_name = $row['activity_name'];
-    $activity->targeting = $row['targeting'];
-    $activity->weighting = $row['weighting'];
+    if (!is_null($row['activity_id'])) {
+      $activity = new simple_activity();
+      $activity->activity_id = $row['activity_id'];
+      $activity->goal_id = $row['goal_id'];
+      $activity->activity_name = $row['activity_name'];
+      $activity->targeting = $row['targeting'];
+      $activity->weighting = $row['weighting'];
 
-
-    $goals[$row['goal_id']]['activities'][] = $activity;
+      $goals[$row['goal_id']]['activities'][] = $activity;
+    }
   }
 
   $result = array();
@@ -62,7 +64,12 @@ function get_goals_with_activities()
 
     $goal_with_activities = new goal_with_activities();
     $goal_with_activities->goal = $goal;
-    $goal_with_activities->activities = $data['activities'];
+
+    if (isset($data['activities'])) {
+      $goal_with_activities->activities = $data['activities'];
+    } else {
+      $goal_with_activities->activities = [];
+    }
 
     $result[] = $goal_with_activities;
   }

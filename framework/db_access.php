@@ -340,7 +340,7 @@ class activity extends data_object
     $this->data = [
       'goal_id' => $this->goal_id,
       'activity_name' => add_single_quotes($this->activity_name),
-      'targeting' => $this->targeting ? 1 : 0,
+      'targeting' => $this->targeting ? (string) 1 : (string) 0,
       'weighting' => $this->weighting
     ];
   }
@@ -349,7 +349,7 @@ class activity extends data_object
   {
     $this->goal_id = $data['goal_id'];
     $this->activity_name = $data['activity_name'];
-    $this->targeting = $data['targeting'] == 1 ? true : false;
+    $this->targeting = (int) $data['targeting'] === 1;
     $this->weighting = $data['weighting'];
   }
 

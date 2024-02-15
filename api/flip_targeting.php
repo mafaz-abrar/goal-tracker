@@ -10,11 +10,6 @@ function flip_targeting(int $activity_id)
   $activity->update_existing();
 }
 
-// $res = new Response($_POST['activity_id']);
-// $res->generate();
-
-// generate_json_response('Hey');
-
 try {
   flip_targeting($_POST['activity_id']);
 } catch (Exception $ex) {
