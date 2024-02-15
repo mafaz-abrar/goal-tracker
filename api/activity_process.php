@@ -21,7 +21,7 @@ try {
     $activity->goal_id = $_POST['goal_id'];
 
   if (isset($_POST['activity_name']))
-    $activity->activity_name = $_POST['activity_name'];
+    $activity->activity_name = addslashes($_POST['activity_name']);
 
   if (isset($_POST['targeting'])) {
     $activity->targeting = $_POST['targeting'] === 'true';

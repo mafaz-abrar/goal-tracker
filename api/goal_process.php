@@ -19,7 +19,7 @@ try {
   }
 
   if (isset($_POST['goal_name']))
-    $goal->goal_name = $_POST['goal_name'];
+    $goal->goal_name = addslashes($_POST['goal_name']);
 
   switch ($_GET['mode']) {
     case 'add':

@@ -26,7 +26,7 @@ try {
     $entry->date = $_POST['date'];
 
   if (isset($_POST['task_description']))
-    $entry->task_description = $_POST['task_description'];
+    $entry->task_description = addslashes($_POST['task_description']);
 
   if (isset($_POST['hours']))
     $entry->hours_spent = $_POST['hours'];
