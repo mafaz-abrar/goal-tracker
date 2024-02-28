@@ -28,8 +28,8 @@ try {
   if (isset($_POST['task_description']))
     $entry->task_description = addslashes($_POST['task_description']);
 
-  if (isset($_POST['hours']))
-    $entry->hours_spent = $_POST['hours'];
+  if (isset($_POST['time_spent']))
+    $entry->time_spent = $_POST['time_spent'];
 
   if (isset($_POST['start_time']) && $_POST['start_time'] != '') {
     $entry->start_time = $_POST['start_time'];

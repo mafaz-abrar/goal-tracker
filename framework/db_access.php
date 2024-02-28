@@ -219,7 +219,7 @@ class entry extends data_object
   public ?int $activity_id;
   public ?string $date;
   public ?string $task_description;
-  public ?string $hours_spent;
+  public ?string $time_spent;
   public ?string $start_time;
   public ?string $end_time;
 
@@ -228,7 +228,7 @@ class entry extends data_object
     $this->activity_id = null;
     $this->date = null;
     $this->task_description = null;
-    $this->hours_spent = null;
+    $this->time_spent = null;
     $this->start_time = null;
     $this->end_time = null;
 
@@ -249,15 +249,15 @@ class entry extends data_object
       throw new Exception("Task description is null!");
     }
 
-    if (is_null($this->hours_spent)) {
-      throw new Exception("Hours spent is null!");
+    if (is_null($this->time_spent)) {
+      throw new Exception("Time spent is null!");
     }
 
     $this->data = [
       'activity_id' => $this->activity_id,
       'date' => add_single_quotes($this->date),
       'task_description' => add_single_quotes($this->task_description),
-      'hours_spent' =>  add_single_quotes($this->hours_spent),
+      'time_spent' =>  add_single_quotes($this->time_spent),
       'start_time' => is_null($this->start_time) ? "null" : add_single_quotes($this->start_time),
       'end_time' => is_null($this->end_time) ? "null" : add_single_quotes($this->end_time)
     ];
@@ -268,7 +268,7 @@ class entry extends data_object
     $this->activity_id = $data['activity_id'];
     $this->date = $data['date'];
     $this->task_description = $data['task_description'];
-    $this->hours_spent  = $data['hours_spent'];
+    $this->time_spent  = $data['time_spent'];
     $this->start_time = $data['start_time'];
     $this->end_time = $data['end_time'];
   }
