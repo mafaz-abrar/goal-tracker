@@ -308,6 +308,7 @@ class activity extends data_object
   public ?string $activity_name;
   public ?bool $targeting;
   public ?int $weighting;
+  public ?int $target;
 
   public function __construct(db_access $db_access, int $id = null)
   {
@@ -315,6 +316,7 @@ class activity extends data_object
     $this->activity_name = null;
     $this->targeting = null;
     $this->weighting = null;
+    $this->target = null;
 
     parent::__construct($db_access, 'activity_id', 'activities', $id);
   }
@@ -337,11 +339,16 @@ class activity extends data_object
       throw new Exception('Weighting is null!');
     }
 
+    if (is_null($this->target)) {
+      throw new Exception('Target is null!');
+    }
+
     $this->data = [
       'goal_id' => $this->goal_id,
       'activity_name' => add_single_quotes($this->activity_name),
       'targeting' => $this->targeting ? (string) 1 : (string) 0,
-      'weighting' => $this->weighting
+      'weighting' => $this->weighting,
+      'target' => $this->target
     ];
   }
 
@@ -351,6 +358,7 @@ class activity extends data_object
     $this->activity_name = $data['activity_name'];
     $this->targeting = (int) $data['targeting'] === 1;
     $this->weighting = $data['weighting'];
+    $this->target = $data['target'];
   }
 
   public function get_goal_name(): string

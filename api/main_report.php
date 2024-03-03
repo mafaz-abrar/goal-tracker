@@ -1,29 +1,7 @@
 <?php
 include('./api_utils.php');
 include('../framework/db_access.php');
-
-class simple_activity
-{
-  public int $activity_id;
-  public int $goal_id;
-  public string $activity_name;
-  public bool $targeting;
-  public int $weighting;
-}
-
-class weekly_entry
-{
-  public simple_activity $activity;
-  public string $goal_name;
-
-  public int $monday_time;
-  public int $tuesday_time;
-  public int $wednesday_time;
-  public int $thursday_time;
-  public int $friday_time;
-  public int $saturday_time;
-  public int $sunday_time;
-}
+include_once('./data_structures.php');
 
 function get_weekly_entries_list(string $filter_date): array
 {
@@ -35,7 +13,8 @@ function get_weekly_entries_list(string $filter_date): array
         activities.goal_id,
         goals.goal_name,
         activities.targeting,
-        activities.weighting
+        activities.weighting,
+        activities.target
   
       FROM
         entries
@@ -56,7 +35,8 @@ function get_weekly_entries_list(string $filter_date): array
           activities.goal_id,
           goals.goal_name,
           activities.targeting,
-          activities.weighting
+          activities.weighting,
+          activities.target
         FROM
           activities
           INNER JOIN goals ON goals.goal_id = activities.goal_id
@@ -73,6 +53,7 @@ function get_weekly_entries_list(string $filter_date): array
     $activity->goal_id = $row['goal_id'];
     $activity->targeting = $row['targeting'];
     $activity->weighting = $row['weighting'];
+    $activity->target = $row['target'] / 60;
 
     $weekly_entry = new weekly_entry();
     $weekly_entry->goal_name = $row['goal_name'];

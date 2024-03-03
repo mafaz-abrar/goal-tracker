@@ -1,27 +1,7 @@
 <?php
 include_once('../framework/db_access.php');
 include_once('../api/api_utils.php');
-
-class simple_goal
-{
-  public int $goal_id;
-  public string $goal_name;
-}
-
-class simple_activity
-{
-  public int $activity_id;
-  public int $goal_id;
-  public string $activity_name;
-  public bool $targeting;
-  public int $weighting;
-}
-
-class goal_with_activities
-{
-  public simple_goal $goal;
-  public array $activities;
-}
+include_once('./data_structures.php');
 
 function get_goals_with_activities()
 {
@@ -51,6 +31,7 @@ function get_goals_with_activities()
       $activity->activity_name = $row['activity_name'];
       $activity->targeting = $row['targeting'];
       $activity->weighting = $row['weighting'];
+      $activity->target = $row['target'] / 60;
 
       $goals[$row['goal_id']]['activities'][] = $activity;
     }

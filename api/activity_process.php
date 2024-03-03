@@ -29,6 +29,9 @@ try {
   if (isset($_POST['weighting'])) {
     $activity->weighting = $_POST['weighting'];
   }
+  if (isset($_POST['target'])) {
+    $activity->target = $_POST['target'];
+  }
 
   switch ($_GET['mode']) {
     case 'add':
